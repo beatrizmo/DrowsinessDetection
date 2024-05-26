@@ -9,7 +9,7 @@ data class BoundingBox(
     val cy: Float,
     val w: Float,
     val h: Float,
-    val cnf: Float,
-    val cls: Int,
-    val clsName: String
+    val cnf: Float, //confiança
+    val cls: Int,   //drowsy, awake
+    val clsName: String //DROWSY OR AWAKE
 )

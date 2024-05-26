@@ -113,10 +113,12 @@ class Detector(
         }
 
         val classification = bestBoxes.any{it -> it.cls == DROWSY}
-        println(classification);
+
 
         //playSound()
-
+        if (bestBoxes.any { it -> it.clsName == "drowsy"}) {
+            playSound()
+        }
 
         detectorListener.onDetect(bestBoxes, inferenceTime)
     }
