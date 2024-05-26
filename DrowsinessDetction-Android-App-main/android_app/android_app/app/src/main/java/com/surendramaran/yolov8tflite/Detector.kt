@@ -2,7 +2,12 @@ package com.surendramaran.yolov8tflite
 
 import android.content.Context
 import android.graphics.Bitmap
+
+import android.media.MediaPlayer
+import android.os.Handler
+
 import android.os.SystemClock
+import android.view.View
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
@@ -16,12 +21,17 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
+const val DROWSY = 0;
+const val AWAKE = 1;
 class Detector(
     private val context: Context,
     private val modelPath: String,
     private val labelPath: String,
     private val detectorListener: DetectorListener
+
 ) {
+
+    var mediaPlayer = MediaPlayer.create(context, R.raw.emergency_alert)
 
     private var interpreter: Interpreter? = null
     private var labels = mutableListOf<String>()
@@ -65,6 +75,7 @@ class Detector(
         } catch (e: IOException) {
             e.printStackTrace()
         }
+
     }
 
     fun clear() {
@@ -101,8 +112,32 @@ class Detector(
             return
         }
 
+        val classification = bestBoxes.any{it -> it.cls == DROWSY}
+        println(classification);
+
+        //playSound()
+
+
         detectorListener.onDetect(bestBoxes, inferenceTime)
     }
+
+    private fun playSound() {
+        mediaPlayer.let {
+            if (!it.isPlaying) {
+                it.start()
+            }
+        }
+    }
+
+    fun stopSound() {
+        mediaPlayer.let {
+            if (it.isPlaying) {
+                it.stop()
+                it.prepare()
+            }
+        }
+    }
+
 
     private fun bestBox(array: FloatArray) : List<BoundingBox>? {
 

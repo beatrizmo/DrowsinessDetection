@@ -4,8 +4,13 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
+
+import android.media.MediaPlayer
+import android.os.Handler
+
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
@@ -26,11 +31,13 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     private lateinit var binding: ActivityMainBinding
     private val isFrontCamera = false
 
+    lateinit var mediaPlayer: MediaPlayer
     private var preview: Preview? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var detector: Detector
+
 
     private lateinit var cameraExecutor: ExecutorService
 
@@ -49,6 +56,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+        mediaPlayer = MediaPlayer.create(this, R.raw.emergency_alert)
     }
 
     private fun startCamera() {
@@ -66,7 +74,7 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
         val cameraSelector = CameraSelector
             .Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
             .build()
 
         preview =  Preview.Builder()
@@ -165,12 +173,21 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
     }
 
     override fun onDetect(boundingBoxes: List<BoundingBox>, inferenceTime: Long) {
+
         runOnUiThread {
+
             binding.inferenceTime.text = "${inferenceTime}ms"
             binding.overlay.apply {
                 setResults(boundingBoxes)
                 invalidate()
             }
+
         }
     }
+
+    fun buttonClick(view: View) {
+        detector.stopSound()
+    }
+
+
 }
