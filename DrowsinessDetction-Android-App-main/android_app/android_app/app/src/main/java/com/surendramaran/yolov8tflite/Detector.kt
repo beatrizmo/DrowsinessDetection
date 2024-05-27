@@ -4,10 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 
 import android.media.MediaPlayer
-import android.os.Handler
 
 import android.os.SystemClock
-import android.view.View
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
@@ -27,7 +25,11 @@ class Detector(
     private val context: Context,
     private val modelPath: String,
     private val labelPath: String,
-    private val detectorListener: DetectorListener
+    private val detectorListener: DetectorListener,
+
+    private var deltaTimeDrowsy: Long = 0,
+    private var deltaTimeAwake: Long = 0,
+    private var currentTime: Long = System.currentTimeMillis()
 
 ) {
 
@@ -112,14 +114,24 @@ class Detector(
             return
         }
 
-        val classification = bestBoxes.any{it -> it.cls == DROWSY}
-
-
         //playSound()
+        val currentTime = System.currentTimeMillis()
         if (bestBoxes.any { it -> it.clsName == "drowsy"}) {
-            playSound()
+            this.deltaTimeDrowsy += currentTime - this.currentTime
+            this.deltaTimeAwake = 0
+        }
+        else{
+            this.deltaTimeAwake += currentTime - this.currentTime
         }
 
+        this.currentTime = currentTime
+        if(this.deltaTimeDrowsy > 3000){
+            playSound()
+        }
+        if(this.deltaTimeAwake > 1000){
+            this.deltaTimeDrowsy = 0
+
+        }
         detectorListener.onDetect(bestBoxes, inferenceTime)
     }
 
@@ -161,7 +173,7 @@ class Detector(
 
             if (maxConf > CONFIDENCE_THRESHOLD) {
                 val clsName = labels[maxIdx]
-                val cx = array[c] // 0
+                val cx = 1- array[c] // 0
                 val cy = array[c + numElements] // 1
                 val w = array[c + numElements * 2]
                 val h = array[c + numElements * 3]
