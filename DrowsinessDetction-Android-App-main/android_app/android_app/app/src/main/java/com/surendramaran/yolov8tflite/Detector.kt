@@ -124,10 +124,10 @@ class Detector(
         }
 
         this.currentTime = currentTime
-        if(this.deltaTimeDrowsy > 3000){
+        if(this.deltaTimeDrowsy > 1500){
             playSound()
         }
-        if(this.deltaTimeAwake > 1000){
+        if(this.deltaTimeAwake > 2000){
             this.deltaTimeDrowsy = 0
 
         }
