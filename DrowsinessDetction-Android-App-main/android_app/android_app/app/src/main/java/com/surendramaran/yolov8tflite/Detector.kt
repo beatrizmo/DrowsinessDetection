@@ -19,21 +19,20 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
-const val DROWSY = 0;
-const val AWAKE = 1;
+
 class Detector(
     private val context: Context,
     private val modelPath: String,
     private val labelPath: String,
     private val detectorListener: DetectorListener,
 
-    private var deltaTimeDrowsy: Long = 0,
-    private var deltaTimeAwake: Long = 0,
+    var deltaTimeDrowsy: Long = 0,
+    var deltaTimeAwake: Long = 0,
     private var currentTime: Long = System.currentTimeMillis()
 
 ) {
 
-    var mediaPlayer = MediaPlayer.create(context, R.raw.emergency_alert)
+    private var mediaPlayer = MediaPlayer.create(context, R.raw.emergency_alert)
 
     private var interpreter: Interpreter? = null
     private var labels = mutableListOf<String>()
@@ -147,7 +146,13 @@ class Detector(
         mediaPlayer.let {
             if (it.isPlaying) {
                 it.stop()
-                it.prepare()
+                try {
+                    it.prepare()
+                }
+                catch (_: Exception){
+
+                }
+
             }
         }
     }

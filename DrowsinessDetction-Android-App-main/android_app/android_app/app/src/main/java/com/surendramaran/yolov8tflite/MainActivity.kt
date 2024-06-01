@@ -187,6 +187,8 @@ class MainActivity : AppCompatActivity(), Detector.DetectorListener {
 
     fun buttonClick(view: View) {
         detector.stopSound()
+        detector.deltaTimeAwake = 0
+        detector.deltaTimeDrowsy = 0
     }
 
 
